@@ -1,0 +1,434 @@
+<Box01>:
+	canvas:
+        Color:
+            rgb: 0,0,0
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+<BoxNegro>:
+	conect:conect
+	up:up
+	s1:s1 #suiche 1
+	i1:i1 #corriente 1
+
+	msg:msg
+	img_conect:img_conect
+	img_update:img_update
+	input_i1:input_i1
+	input_i2:input_i2
+	input_i3:input_i3
+	input_i4:input_i4
+	check_ip:check_ip
+	msg_nc:msg_nc
+	msg_error:msg_error
+	p1:p1 #Potencia 1
+
+	
+	
+    #padding: 3
+    #spacing: 3
+    orientation: "vertical"
+    # COLOR BORDE DE LAS PESTAÑAS O TABS
+    canvas:
+        Color:
+            rgb: 0,0,0
+        Rectangle:
+            size: self.size
+            pos: self.pos
+    TabbedPanel:
+        id: tab_panel
+        do_default_tab: False
+        
+        
+		#PESTAÑA 1  CONTROL
+		
+        TabbedPanelItem:
+            id: tab_1
+            text: 'Control'
+			
+			#layout de las tab o pestañas
+			###################################################################### CONTENEDOR PESTAÑA CONTROL 
+			BoxBlue:
+				padding: 10
+				spacing: 10
+				orientation: "vertical"
+				
+				###################################################################### CONTENEDOR CONECTAR 
+				BoxRed:
+					size_hint: 1,0.1
+					conect:conect
+					Button:
+						text: 'Conectar'
+						id : conect
+						on_press: root.conectar()
+						
+					Label:
+					    id:msg
+						text: "Sin conectar"
+					
+					Image:
+						id:img_conect
+						source: "./noconectado.png"
+
+						
+				###################################################################### CONTENEDOR ACTUALIZAR 
+				BoxRed:
+					size_hint: 1,0.1
+					Button:
+						text: 'Actualizar'
+						id : up
+						on_press: root.actualizar()
+						
+					Label:
+					    id:msg_up
+						text: "Actualizando"
+					
+					Image:
+						id:img_update
+						source: "./noupdate.png"
+						
+
+				###################################################################### CONTENEDOR ACTUALIZAR 
+				BoxRed:
+					size_hint: 1,0.1
+					Button:
+						text: 'Desconectar'
+						id : noconect
+						on_press: root.desconectar()
+						
+					Label:
+					    id:msg_nc
+						text: " "
+					
+					
+						
+				############################################################################### CONTENEDOR DE CARGAS
+				BoxBlue:
+					orientation: "vertical"
+					size_hint: 1,0.9
+					#Switch:
+					
+					############################################################################### CONTENEDOR DE CARGAS 1,2
+					BoxRed:                          
+						padding: 5
+						spacing: 5
+						
+						########################################################### CARGA 1
+						BoxGreen:
+							orientation: "vertical"
+							BoxRed:
+								Label:
+									text: 'Carga ON/OFF:'
+								Switch:
+									on_active: root.server1(self, self.active)
+									# switch bloqueado o deshabilitado
+									id: s1
+								
+							BoxRed:
+								Label:
+									text: 'Corriente Pico:'
+                                TextInput:
+                                    multiline:False
+                                    pos: self.pos   
+                                    id: i1
+                                    text: ' '
+                                    #color del texto
+                                    foreground_color: (1,1,1,1)
+                                    #el fondo cambia de color cada vez que se toque
+                                    background_color: (0,0.8,1,0.6) if self.focus else (0,0,0,1)
+                                
+							BoxRed:         
+								Label:
+									text: 'Corriente Pico:'
+                                TextInput:
+                                    multiline:False
+                                    pos: self.pos   
+                                    #id: p1
+                                    text: 'Corriente RMS: '
+                                    #color del texto
+                                    foreground_color: (1,1,1,1)
+                                    #el fondo cambia de color cada vez que se toque
+                                    background_color: (0,0.8,1,0.6) if self.focus else (0,0,0,1)
+                                
+							BoxRed:   
+								Label:
+									text: 'Corriente Pico:'
+                                TextInput:
+                                    multiline:False
+                                    pos: self.pos   
+                                    id: p1
+                                    text: 'Potencia S'
+                                    #color del texto
+                                    foreground_color: (1,1,1,1)
+                                    #el fondo cambia de color cada vez que se toque
+                                    background_color: (0,0.8,1,0.6) if self.focus else (0,0,0,1)
+                                    
+                                #CONTENEDOR SEPARADOR (ES PARA METER COMO UN CUADRO Y ACOMODAR LA APP)
+                                #BoxGreen:
+                            
+
+
+
+
+
+
+
+#PESTAÑA  2			
+		TabbedPanelItem:
+			text: 'Login'
+			
+ 		 #layout de las tab o pestañas
+			###################################################################### CONTENEDOR PESTAÑA LOGIN 
+			BoxBlue:
+				padding: 10
+				spacing: 10
+				
+				BoxRed:
+					#size_hint: 1,0.1
+					orientation: "vertical"
+					
+					########################################################### CONTENEDOR IP 
+					BoxBlue:
+						Label:
+							text: 'IP y Puerto del NodeMCU'
+							halign: 'right'
+							valign: 'middle'
+							bold: True
+							
+                    ########################################################### CONTENEDORES EN BLANCO COMO SEPARADOR
+					BoxBlue:
+						
+					BoxBlue:
+						Label:
+							text: "IP Default: 192.168.11.9"
+							#size_hint_x: .5
+						CheckBox:
+							#on_active: root.checkbox_clicked(self, self.active)
+							#on_active: root.guardar_login(self, self.active)
+
+							id:check_ip
+							size_hint_x: .3
+							#CheckBox inicializado en Tue o activado
+							active: True
+							
+						    
+					BoxBlue:
+						Label:
+							text: 'IP del servidor:'
+						TextInput:
+							multiline:False
+							input_type:"number"
+							pos: self.pos   
+							id: input_ip
+							text: '192.168.1.1'
+							# Eltext input lo activa el CheckBox
+							#disabled: not checkip.active
+							disabled: check_ip.active
+							foreground_color: (1,1,1,1)
+							background_color: (0,0.8,1,0.6) if self.focus else (0,0,0,1)
+											
+					########################################################### CONTENEDOR PUERTO
+					BoxBlue:
+						Label:
+							text: 'Puerto del servidor:'
+						TextInput:
+							pos: self.pos
+							input_type:"number"
+							multiline: False
+							id: input_puerto 
+							text: '8266'
+							foreground_color: (1,1,1,1)
+							background_color: (0,0.8,1,0.6) if self.focus else (0,0,0,1)
+							
+                    ########################################################### CONTENEDORES EN BLANCO COMO SEPARADOR
+					BoxBlue:
+					BoxBlue:
+					
+					########################################################### CONTENEDOR GUARDAR
+					BoxBlue:
+						BoxBlue:
+						Button:
+							id: guardar
+							text: 'Guardar'
+							#root.funcion (id.text)  la id del textimput
+							on_press: root.guardar_login(input_puerto.text, input_ip.text)
+					BoxBlue:
+					BoxBlue:
+					BoxBlue:
+						Label:
+							text: 'Guarde y espere un momento'
+							id: msg_error
+					
+					BoxBlue:
+
+
+					
+					
+					
+					
+					
+					
+		#PESTAÑA 3  CONGIGURACION
+		
+        TabbedPanelItem:
+            id: tab_3
+            text: 'c'
+
+			###################################################################### CONTENEDOR PESTAÑA config 
+			BoxBlue:
+				padding: 10
+				spacing: 10
+				
+				BoxRed:
+					#size_hint: 1,0.1
+					orientation: "vertical"
+					
+					########################################################### CONTENEDOR CORRIENTE CARGA 1 
+					BoxBlue:
+
+						Label:
+							text: 'Corriente maxima de las cargas'
+							bold: True
+							
+    
+					BoxBlue:
+						Label:
+							size_hint: 1,0.65
+							text: 'Corriente 1 (A):'
+							
+							
+						TextInput:
+							size_hint: 1,0.65
+							multiline: False
+							id: input_i1
+							text: '4'
+							foreground_color: (1,1,1,1)
+							background_color: (0,0.8,1,0.6) if self.focus else (0,0,0,1)
+							
+					########################################################### CONTENEDOR CORRIENTE CARGA 2
+							
+
+					BoxBlue:
+						Label:
+							size_hint: 1,0.65
+							text: 'Corriente 2 (A):'
+						TextInput:
+							size_hint: 1,0.65
+							multiline: False
+							id: input_i2
+							text: '4'
+							foreground_color: (1,1,1,1)
+							background_color: (0,0.8,1,0.6) if self.focus else (0,0,0,1)
+							
+					########################################################### CONTENEDOR CORRIENTE CARGA 3
+
+							
+						
+						
+					BoxBlue:
+						Label:
+							size_hint: 1,0.65
+							text: 'Corriente 3 (A):'
+						TextInput:
+							size_hint: 1,0.65
+							multiline: False
+							id: input_i3
+							text: '4'
+							foreground_color: (1,1,1,1)
+							background_color: (0,0.8,1,0.6) if self.focus else (0,0,0,1)
+							
+
+					########################################################### CONTENEDOR CORRIENTE CARGA 4
+					BoxBlue:
+						Label:
+							size_hint: 1,0.65
+							text: 'Corriente 4 (A):'
+						TextInput:
+							size_hint: 1,0.65
+							multiline: False
+							id: input_i4
+							text: '3.3'
+							foreground_color: (1,1,1,1)
+							background_color: (0,0.8,1,0.6) if self.focus else (0,0,0,1)
+							
+					########################################################### CONTENEDOR CORRIENTE CARGA 4
+					BoxBlue:
+						Label:
+							size_hint: 1,0.65
+							text: 'Solo para Cargas 120VAC'
+
+							
+                    ########################################################### CONTENEDORES EN BLANCO COMO SEPARADOR
+					BoxBlue:
+						orientation: "horizontal"
+						#center: root.center
+						BoxBlue:
+						Button:
+							#center: root.center
+							size_hint: 0.5,0.5
+							id: guardar
+							text: 'Guardar'
+							#root.funcion (id.text)  la id del textimput
+							on_press: root.guardar_current(input_i1.text, input_i2.text, input_i3.text, input_i4.text)
+							
+
+
+#PESTAÑA 4  NOTIFICACIONES
+		
+		TabbedPanelItem:
+            id: tab_4
+            text: 'not'
+
+			###################################################################### CONTENEDOR PESTAÑA config 
+			BoxBlue:
+				padding: 10
+				spacing: 10
+				
+				BoxRed:
+					#size_hint: 1,0.1
+					orientation: "vertical"
+					
+					########################################################### CONTENEDOR CORRIENTE CARGA 1 
+					BoxBlue:
+							
+					Button:
+						text: 'Toast Notification'
+						size_hint: 1, None
+						on_release: root.do_notify()
+
+
+					
+					
+# COLORES DE LA CAJAS
+<BoxGreen>:
+
+    canvas:
+        Color:
+            rgb: 0,0,0
+        Rectangle:
+            size: self.size
+            pos: self.pos
+        
+
+<BoxBlue>:
+    canvas:
+        Color:
+            rgb: 0,0,0
+        Rectangle:
+            size: self.size
+			pos: self.pos
+
+
+
+
+<BoxRed>:
+
+    canvas:
+        Color:
+			#color negro 0,0,0
+            rgb: 1,0,0
+        Rectangle:
+            size: self.size
+			pos: self.pos
+
