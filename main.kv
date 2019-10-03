@@ -221,7 +221,7 @@
 							input_type:"number"
 							pos: self.pos   
 							id: input_ip
-							text: '192.168.1.1'
+							text: 'tesis.ddns.net'
 							# Eltext input lo activa el CheckBox
 							#disabled: not checkip.active
 							disabled: check_ip.active
@@ -251,8 +251,13 @@
 						Button:
 							id: guardar
 							text: 'Guardar'
-							#root.funcion (id.text)  la id del textimput
 							on_press: root.guardar_login(input_puerto.text, input_ip.text)
+							RoundedRectangle: 
+								pos: self.pos 
+								size: self.size
+								radius: [50] 
+							#root.funcion (id.text)  la id del textimput
+							
 					BoxBlue:
 					BoxBlue:
 					BoxBlue:
