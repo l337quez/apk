@@ -1,6 +1,4 @@
 import kivy
-kivy.require("1.9.2")
-
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
@@ -10,17 +8,20 @@ from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.textinput import TextInput
 from kivy.properties import ObjectProperty
 from kivy.clock import Clock
+from kivy.config import Config
+
+Config.set('input','mouse','mouse')
 import time
 import threading
 import socket
 import sys
 import os
 
-from kivy.config import Config
-
 #NOTIFICACIONES
 from plyer import notification
 
+#VIBRADOR
+from plyer import vibrator
 
 #importamos libreria de JSON
 import json
@@ -30,13 +31,10 @@ from time import sleep
 global ban 
 ban=False
 
-#configuracion de pantalla  primera
-#Config.set('graphics', 'width', 300)
-#Config.set('graphics', 'height', 400)
 
-#configuracion de pantalla  segunda
-Config.set('graphics', 'width', 330)
-Config.set('graphics', 'height', 400)
+#configuracion de pantalla  
+Config.set('graphics', 'width', 320)
+Config.set('graphics', 'height', 500)
 
 
 
@@ -81,7 +79,7 @@ class BoxNegro(BoxLayout):
 	s3= ObjectProperty()
 	s4= ObjectProperty()
 
-
+#s.send(msg)
 
 
 #CHECKBOX
@@ -100,16 +98,47 @@ class BoxNegro(BoxLayout):
 #valñidar una exepcion
 
 
+#AQUI LLEGAN TODOS LOS DATOS Y SE GUARDAN EN UN ARCHIVO TXT
+#DETECCION DE CORRIENTE ALTA Y NOTIFICACION
+	try: 
+		data=s.recv(1024)
+		with open('data.txt', "w") as f:
+			f.write(data)
+			sleep(0.1)
+		with open('data.txt', "r") as f:  
+			strin=str(data)
+			global DATA
+			DATA=f.read()
+		
+		Datas=data.decode()
+		dato_rec=True
 
-#NOTIFICACIONES
-	def do_notify(self):
-		title = b"titulo".decode('utf8')
-		message = f" Mensaje "
-		ticker = "Alarma"
-		app_name = "app"
-		app_icon = "plyer-icon.png"
-		toast = True
-		notification.notify(title=title,
+	except Exception:
+		dato_rec=False
+
+    
+	if dato_rec== True:
+		with open('alerta.txt', "w") as f:
+			f.write(Datas)
+			sleep(0.1)
+		with open('alerta.txt', "r") as f:  
+			strin=str(Datas)
+			I_ALERTA=f.read()
+
+        #verificamos que este la clave i_alerta
+		if "i_alerta" in json_arreglo:
+			json_arreglo = json.loads(I_ALERTA) 
+			corrientem=eval(json_arreglo.get("i_alerta"))
+			
+			#NOTIFICACIONES
+			#Generamos la notificacion con vibracion
+			title = b"Alerta".decode('utf8')
+			message = f" Alerta de corriente"
+			ticker = "La corriente tiene un valor de:" + corrientem + "superando el valor maximo"
+			app_name = "conexion"
+			app_icon = "plyer-icon.png"
+			toast = True
+			notification.notify(title=title,
                                 message=message,
                                 app_name=app_name,
                                 app_icon=app_icon,
@@ -117,17 +146,14 @@ class BoxNegro(BoxLayout):
                                 ticker=ticker,
                                 toast=toast
                                 )
+			
+			#ponemos a vibrar el telefono
+			vibrator.vibrate(10)
+        
+		else:
+			print("NO HAY ALERTA")          
 
-		#toast = True
-		#notification.notify(title=title,
-                                #message=message,
-                                #app_name=app_name,
-                                #app_icon=app_icon,
-                                #timeout=10,
-                                #ticker=ticker,
-                                #toast=toast
-                                #)
-
+            
 
 
 
@@ -148,7 +174,7 @@ class BoxNegro(BoxLayout):
 		except BrokenPipeError:
 			print("Conexion Rota")
         #cambiamos el titulo de texto
-		self.msg_nc.text= 'Desconectado'
+		self.msg.text= 'Desconectado'
 #Agregamos una execpcion
 		try:
 			s.shutdown(socket.SHUT_RDWR)
@@ -185,14 +211,25 @@ class BoxNegro(BoxLayout):
 			print(dataa)
 			print(type(dataa))
 			y = json.loads(dataa)
+			print(y)
 			print(type(y))
+			if "c1" in y:
+				print ("Si se encuentra ")
+			else:
+				print ("No se encuentra")
 			print("La corriente 1 es:", y["c1"])
 			corriente1=eval(y.get("c1"))
 			#print(corriente1)
 			potencia1= str(float(corriente1)*120)
+			#setiamos la potencia
 			self.p1.text=potencia1
 			print(type(corriente1))
+			#setiamos la corriente
 			self.i1.text=y.get("c1")
+			#setiamos la corriente IRMS
+			corrienteRMS=str(float(corriente1)*.707) #corriente*sqrt(2)
+			self.i1rms.text=corrienteRMS
+
 		return corriente1
 		
 		
@@ -227,6 +264,10 @@ class BoxNegro(BoxLayout):
 			s.send(dato)
 		except BrokenPipeError:
 			print("Conexion Rota")
+		# variable que recibimos del servidor (nodemcu)
+
+		except OSError:
+			print("Archivo incorrupto en el Socket")
 		# variable que recibimos del servidor (nodemcu)
 		data = ""
 
@@ -336,23 +377,19 @@ class BoxNegro(BoxLayout):
 
 
 # PESTAÑA CONFIG
-	def guardar_current(self,input_i1, input_i2, input_i3, input_i4):
+	def guardar_current(self,i_maxima):
 		#Aqui se enviaran los valores de corrientes al servidor
 		#creamos el diccionario
-		msg = {"lm1": 2,"lm2": 2,"lm3": 2,"lm4": 2}
+		msg = {"lm1": 2}
 		#le asignamos el valor ingresado por la input al diccionario
-		msg["lm1"]=input_i1
-		msg["lm2"]=input_i2
-		msg["lm3"]=input_i3
-		msg["lm4"]=input_i4
+		msg["lm1"]=float(i_maxima)
 		#convertimos el diccionario en json
 		msg = json.dumps(msg)
 		#convertiendo JSON a bytes
 		msg =str.encode(msg)
 		print(msg)
-		print("DESCONMENTAR LINEA PARA ENVIRA SOCKET")
 		#enviamos el JSON
-		#s.send(msg)
+		s.send(msg)
 
 
 
@@ -399,6 +436,7 @@ class BoxNegro(BoxLayout):
 			#pass
 			print("IP incorrecta")
 			self.msg_error.text= 'Error: IP Incorrecta'
+			s.close() #cerramos socket
 		#finally:
 			#s.close()
 
@@ -417,6 +455,10 @@ class MainApp(App):
 
 	#Titulo de la ventana
 	title = "Conexion al servidor"
+	
+	#Eliminar el menu de opciones de kivy en el telefono
+	def open_settings(*args):
+		pass
 	
 	
 	def build(self):
