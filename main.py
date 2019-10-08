@@ -16,6 +16,8 @@ import threading
 import socket
 import sys
 import os
+from os import remove
+import os.path as path
 
 #NOTIFICACIONES
 from plyer import notification
@@ -210,25 +212,60 @@ class BoxNegro(BoxLayout):
 				dataa=f.read()
 			print(dataa)
 			print(type(dataa))
-			y = json.loads(dataa)
-			print(y)
-			print(type(y))
-			if "c1" in y:
-				print ("Si se encuentra ")
+			JSON = json.loads(dataa)
+			print(JSON)
+			print(type(JSON))
+			if "c1" in JSON:
+				print("La corriente 1 es:", JSON["c1"])
+				corriente1=eval(JSON.get("c1"))
+				#print(corriente1)
+				potencia1= str(float(corriente1)*120)
+				#setiamos la potencia
+				self.p1.text=potencia1
+				print(type(corriente1))
+				#setiamos la corriente
+				self.i1.text=JSON.get("c1")
+				#setiamos la corriente IRMS
+				corrienteRMS=str(float(corriente1)*.707) #corriente*sqrt(2)
+				self.i1rms.text=corrienteRMS
+				
+			elif "i_alerta" in JSON:
+				print("Corriente ALERTA:", JSON["i_alerta"])
+				corrientem=str(eval(JSON.get("i_alerta")))
+################################################################################################    NOTIFICACIONES
+			#Generamos la notificacion con vibracion
+				title = b"Alerta".decode('utf8')
+				message = f" Alerta de corriente"
+				ticker = "La corriente tiene un valor de:" + corrientem + "superando el valor maximo"
+				app_name = "conexion"
+				app_icon = "plyer-icon.png"
+				toast = True
+				notification.notify(title=title,
+                                message=message,
+                                app_name=app_name,
+                                app_icon=app_icon,
+                                timeout=10,
+                                ticker=ticker,
+                                toast=toast
+                                )
+			
+				#ponemos a vibrar el telefono
+				vibrator.vibrate(10)
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
 			else:
 				print ("No se encuentra")
-			print("La corriente 1 es:", y["c1"])
-			corriente1=eval(y.get("c1"))
-			#print(corriente1)
-			potencia1= str(float(corriente1)*120)
-			#setiamos la potencia
-			self.p1.text=potencia1
-			print(type(corriente1))
-			#setiamos la corriente
-			self.i1.text=y.get("c1")
-			#setiamos la corriente IRMS
-			corrienteRMS=str(float(corriente1)*.707) #corriente*sqrt(2)
-			self.i1rms.text=corrienteRMS
+
 
 		return corriente1
 		
@@ -396,6 +433,21 @@ class BoxNegro(BoxLayout):
 		
 #PESTAÑA LOGIN
 	def guardar_login(self, input_puerto, input_ip):
+        
+		#Si existe algun dato guardado anteriormente lo eliminamos
+		if path.exists("puerto.txt"):
+			remove("puerto.txt")
+			
+		elif path.exists("ip.txt"):
+			remove("ip.txt") 
+		
+		elif path.exists("suiches.txt"):
+			remove("suiches.txt")
+			
+		elif path.exists("update.txt"):
+			remove("update.txt")
+			
+		
 		if self.check_ip.active:
 			# Esta es la ip ESTATICA o ip defaul
 			with open('ip.txt', "w") as IP:
