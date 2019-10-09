@@ -18,6 +18,7 @@ import sys
 import os
 from os import remove
 import os.path as path
+from decimal import Decimal
 
 #NOTIFICACIONES
 from plyer import notification
@@ -64,7 +65,7 @@ PUERTO.close()
 # AF_INET= Direcciones de internet para ipv4   
 # SOCK_STREAM= tipo de socket para Protocolo TCP
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
+print("prueba esro se repite 12312")
 
 class Box01(BoxLayout):
 	
@@ -103,6 +104,8 @@ class BoxNegro(BoxLayout):
 #AQUI LLEGAN TODOS LOS DATOS Y SE GUARDAN EN UN ARCHIVO TXT
 #DETECCION DE CORRIENTE ALTA Y NOTIFICACION
 	try: 
+        
+		print ("ENTRO AL TRY")
 		data=s.recv(1024)
 		with open('data.txt', "w") as f:
 			f.write(data)
@@ -210,6 +213,11 @@ class BoxNegro(BoxLayout):
 			with open('update.txt', "r") as f:
 				strin=str(datas)
 				dataa=f.read()
+				
+				
+				
+				
+				
 			print(dataa)
 			print(type(dataa))
 			JSON = json.loads(dataa)
@@ -217,14 +225,26 @@ class BoxNegro(BoxLayout):
 			print(type(JSON))
 			if "c1" in JSON:
 				print("La corriente 1 es:", JSON["c1"])
+				
+				#convertimo esto en decimal para usar la libreria
 				corriente1=eval(JSON.get("c1"))
+				
+				co_decimal=Decimal(corriente1)
+				
+				if co_decimal.compare(Decimal(0.1)) <= Decimal(0.1):
+                    #NO hay corriente, por lo tanto no hay voltaje
+                    #para solventar esto, hayq eu colocar un sensor de voltaje
+					corriente1=0
+				else:
+					print ("Si Hay corriente")
+				
 				#print(corriente1)
 				potencia1= str(float(corriente1)*120)
 				#setiamos la potencia
 				self.p1.text=potencia1
 				print(type(corriente1))
 				#setiamos la corriente
-				self.i1.text=JSON.get("c1")
+				self.i1.text=str(corriente1)
 				#setiamos la corriente IRMS
 				corrienteRMS=str(float(corriente1)*.707) #corriente*sqrt(2)
 				self.i1rms.text=corrienteRMS
@@ -232,6 +252,8 @@ class BoxNegro(BoxLayout):
 			elif "i_alerta" in JSON:
 				print("Corriente ALERTA:", JSON["i_alerta"])
 				corrientem=str(eval(JSON.get("i_alerta")))
+				
+				
 ################################################################################################    NOTIFICACIONES
 			#Generamos la notificacion con vibracion
 				title = b"Alerta".decode('utf8')
@@ -347,16 +369,28 @@ class BoxNegro(BoxLayout):
  					 dataa=suiches.read()
  				json_suiches = json.loads(dataa)    
  				print("El Suiche 1 es:", json_suiches["l1"])
- 				#El shiel rele trabaja con los estados invertidos, invertimos el valor
- 				print("El Suiche 1 negado es:", json_suiches["l1"])
- 				suiche1= not json_suiches["l1"]
+ 				print(type(json_suiches["l1"]))
+ 				suiche1=json_suiches["l1"]
+ 				if suiche1=="false":
+ 					self.s1.active= True 
 
+ 				else:
+ 					self.s1.active= False 
+ 				
+ 				#El shiel rele trabaja con los estados invertidos, invertimos el valor
+ 				#print("El Suiche 1 negado es:", json_suiches["l1"])
+ 				#suiche1= not json_suiches["l1"]
+ 				#print(type(suiche1))
+ 				#print(suiche1)
+ 				
  				
  				#Suichamos los estados guardados en la EEPROM del nodemcu
- 				self.s1.active= suiche1
- 				#self.s2.active= suiche2
- 				#self.s3.active= suiche3
- 				#self.s4.active= suiche4
+ 				#if suiche1 == False:
+  					#self.s1.active= False              
+ 				#else:
+  					#self.s1.active= False 
+
+
  				#self.s4.disabled= True
 
  				#salimos del ciclo while con break
@@ -511,7 +545,7 @@ class MainApp(App):
 	#Eliminar el menu de opciones de kivy en el telefono
 	def open_settings(*args):
 		pass
-	
+	print("prueba esro se repite 222222")
 	
 	def build(self):
 		#Hacemos una instancia de la clase para enviar la IP ingresada
@@ -519,7 +553,7 @@ class MainApp(App):
 		#port_and_ip.guardar_login.ESP_IP=
 		
 
-			
+		print("prueba esro se repite 888888")	
 		try:
 			#Connect se usa para conexion remota
 			s.connect((ESP_IP , ESP_PORT))
