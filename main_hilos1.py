@@ -72,65 +72,10 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print("prueba esro se repite 12312")
 
 
-class MySocket:
+#class MySocket:
 #AQUI LLEGAN TODOS LOS DATOS Y SE GUARDAN EN UN ARCHIVO TXT
 #DETECCION DE CORRIENTE ALTA Y NOTIFICACION
 
-	def get_data(self):
-		try: 
-        
-			print ("ENTRO AL TRY")
-			data=s.recv(1024)
-			with open('data.txt', "w") as f:
-				f.write(data)
-				sleep(0.1)
-			with open('data.txt', "r") as f:  
-				strin=str(data)
-				global DATA
-				DATA=f.read()
-		
-			Datas=data.decode()
-			dato_rec=True
-
-		except Exception:
-			dato_rec=False
-
-    
-		if dato_rec== True:
-			with open('alerta.txt', "w") as f:
-				f.write(Datas)
-				sleep(0.1)
-			with open('alerta.txt', "r") as f:  
-				strin=str(Datas)
-				I_ALERTA=f.read()
-
-        #verificamos que este la clave i_alerta
-			if "i_alerta" in json_arreglo:
-				json_arreglo = json.loads(I_ALERTA) 
-				corrientem=eval(json_arreglo.get("i_alerta"))
-			
-			#NOTIFICACIONES
-			#Generamos la notificacion con vibracion
-				title = b"Alerta".decode('utf8')
-				message = f" Alerta de corriente"
-				ticker = "La corriente tiene un valor de:" + corrientem + "superando el valor maximo"
-				app_name = "conexion"
-				app_icon = "plyer-icon.png"
-				toast = True
-				notification.notify(title=title,
-                                    message=message,
-                                    app_name=app_name,
-                                    app_icon=app_icon,
-                                    timeout=10,
-                                    ticker=ticker,
-                                    toast=toast
-                                    )
-			
-				#ponemos a vibrar el telefono
-				vibrator.vibrate(10)
-        
-			else:
-				print("NO HAY ALERTA")        
 
 
 
@@ -155,14 +100,20 @@ class Box01(BoxLayout):
 		self.add_widget(BoxNegro())
 		
 
-		self.sock = MySocket()
-		global evento
-		evento = threading.Event()
-		threading.Thread(target=self.get_data).start()
+		#self.sock = MySocket()
+		#global evento
+		#evento = threading.Event()
+		#threading.Thread(target=self.get_data).start()
+		event = Clock.schedule_interval(BoxNegro.get_data, 10)
 
-	def get_data(self):
-		while True:
-			self.text = self.sock.get_data()
+
+
+
+
+
+	#def get_data(self):
+		#while True:
+			#self.text = self.sock.get_data()
 
 
 class BoxNegro(BoxLayout):
@@ -189,6 +140,73 @@ class BoxNegro(BoxLayout):
 #validar ip... si ingresa una ip mala
  #OSError: [Errno 113] No existe ninguna ruta hasta el `host'
 #valñidar una exepcion
+
+
+
+
+	def get_data(self):
+		try: 
+		
+			print ("ENTRO AL TRY")
+			data=s.recv(1024)
+			with open('data.txt', "w") as f:
+				f.write(data)
+				sleep(0.1)
+			with open('data.txt', "r") as f:  
+				strin=str(data)
+				global DATA
+				DATA=f.read()
+		
+			Datas=data.decode()
+			dato_rec=True
+
+		except Exception:
+			dato_rec=False
+
+
+		if dato_rec== True:
+			with open('alerta.txt', "w") as f:
+				f.write(Datas)
+				sleep(0.1)
+			with open('alerta.txt', "r") as f:  
+				strin=str(Datas)
+				I_ALERTA=f.read()
+
+		#verificamos que este la clave i_alerta
+			if "i_alerta" in json_arreglo:
+				json_arreglo = json.loads(I_ALERTA) 
+				corrientem=eval(json_arreglo.get("i_alerta"))
+			
+			#NOTIFICACIONES
+			#Generamos la notificacion con vibracion
+				title = b"Alerta".decode('utf8')
+				message = f" Alerta de corriente"
+				ticker = "La corriente tiene un valor de:" + corrientem + "superando el valor maximo"
+				app_name = "conexion"
+				app_icon = "plyer-icon.png"
+				toast = True
+				notification.notify(title=title,
+									message=message,
+									app_name=app_name,
+									app_icon=app_icon,
+									timeout=10,
+									ticker=ticker,
+									toast=toast
+									)
+			
+				#ponemos a vibrar el telefono
+				vibrator.vibrate(10)
+				return
+		
+			else:
+				print("NO HAY ALERTA")  
+				return
+
+
+
+
+
+
 
 
 
@@ -225,7 +243,7 @@ class BoxNegro(BoxLayout):
 		
 		#estado = evento.wait()   # aqui el wait y nal final de la funcion activamos con set
 		
-		self.root.evento.set()
+		
 		
 		
 		
@@ -351,7 +369,8 @@ class BoxNegro(BoxLayout):
 # BOTON CONECTAR     
 	def conectar(self):
         
-		self.root.stop.set()
+		__init__.event.cancel ()
+		Clock . unschedule ( get_data )
 		#Enviamos una letra A, para que no se confunda con otro dato
 		#Enviamos un  A  como ping
 		dato = str.encode("A")
@@ -437,7 +456,7 @@ class BoxNegro(BoxLayout):
 
 		print("salio del while")
 		#if data=="AA" :
-		evento.set()
+		
 
 		
 # RELE 1	
@@ -584,7 +603,7 @@ class MainApp(App):
 	#Eliminar el menu de opciones de kivy en el telefono
 	def open_settings(*args):
 		pass
-	print("prueba esro se repite 222222")
+	
 	
 	def build(self):
 		#Hacemos una instancia de la clase para enviar la IP ingresada

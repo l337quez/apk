@@ -10,7 +10,7 @@ from kivy.properties import ObjectProperty
 from kivy.clock import Clock
 from kivy.config import Config
 
-Config.set('input','mouse','mouse')
+#Config.set('input','mouse','mouse')
 import time
 import threading
 import socket
@@ -545,7 +545,7 @@ class MainApp(App):
 	#Eliminar el menu de opciones de kivy en el telefono
 	def open_settings(*args):
 		pass
-	print("prueba esro se repite 222222")
+	
 	
 	def build(self):
 		#Hacemos una instancia de la clase para enviar la IP ingresada
